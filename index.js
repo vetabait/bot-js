@@ -5,8 +5,8 @@ const path = require('path');
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = '1573249197312835705';
-const START_ID = 520016;                    // first ID to check
-const CHECK_DELAY_MS = 8000;                // 8 seconds between checks (safe)
+const START_ID = 520016;
+const CHECK_DELAY_MS = 8000; // might change later
 const STATE_FILE = path.join(__dirname, 'last_id.json');
 
 const ASSET_TYPES = {
@@ -73,7 +73,7 @@ async function getAssetDetails(id) {
 
     const data = await res.json();
 
-    // empty / no real item
+    // empty or just no real item
     if (!data || !data.Name || !data.Creator) {
       return { exists: false };
     }
@@ -135,14 +135,11 @@ async function loop() {
       } else {
         console.log(`ID ${currentId} exists but not by Octane (${result.creatorName})`);
       }
-      // move to next ID
+      // move to next one
       currentId++;
       saveLastId(currentId);
     } else {
-      // no item (or error) → we are at the current end of catalog
-      // stay on the same ID and keep checking until a new one appears
-      console.log(`ID ${currentId} not found yet – waiting for new uploads...`);
-      // do NOT increment
+      console.log(`id ${currentId} not found yet – waiting for new uploads...`);
     }
 
     await new Promise(r => setTimeout(r, CHECK_DELAY_MS));
